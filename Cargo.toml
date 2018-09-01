@@ -1,0 +1,6 @@
+[package]
+name = "chip8"
+version = "0.1.0"
+authors = ["awave1 <artgolovin96@gmail.com>"]
+
+[dependencies]
