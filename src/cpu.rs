@@ -62,13 +62,13 @@ impl Cpu {
                 self.pc += 1;
                 byte_count = i;
             } else {
-                self.pc = 0x200;
                 break;
             }
         }
 
         // Make sure all data have been loaded successfully
         let loaded = (self.pc - (byte_count + 1)) == 0x200;
+        self.pc = 0x200; // reset pc back to start (0x200 in chip-8 case)
 
         if loaded {
             Ok(loaded)
@@ -78,12 +78,25 @@ impl Cpu {
     }
 
     // fetches 16bit word opcode
-    fn fetch_opcode(&mut self, index: usize) -> u16 {
-        return (self.memory[index] as u16) << 8 | self.memory[index + 1] as u16;
+    fn fetch(&self) -> u16 {
+        return (self.memory[self.pc] as u16) << 8 | (self.memory[self.pc + 1] as u16);
     }
 
-    pub fn start(&mut self) {
+    fn execute(&self, opcode: u16) {
+       // @TODO 
+    }
+
+    pub fn start(self) {
         println!("started");
+        loop {
+            let opcode = self.fetch();
+            self.execute(opcode);
+
+            println!("{:x}", opcode);
+            if opcode == 0 {
+                break;
+            }
+        };
     }
 
     fn load_fonts(&mut self) {
