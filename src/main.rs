@@ -30,11 +30,12 @@ fn get_program_data(path: &str) -> Result<Vec<u8>, io::Error> {
 fn start_with_data(data: Vec<u8>) {
     println!("yo, chip-8");
 
-    for mut b in data {
-        debug!("{:x}", b);
-    }
+    let mut cpu = Cpu::new();
 
-    let cpu = Cpu::new();
+    match cpu.load_prog(data) {
+        Ok(_) => cpu.start(),
+        Err(e) => panic!("{:?}", e)
+    }
 }
 
 fn main() {
