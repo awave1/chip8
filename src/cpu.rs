@@ -2,17 +2,17 @@ use std::io::{Error, ErrorKind};
 
 pub struct Cpu {
     // index register
-    pub i: u16,
+    i: u16,
     // program counter
-    pub pc: u16,
-    pub memory: [u8; 4096],
+    pc: u16,
+    memory: [u8; 4096],
     // data registers
-    pub v: [u8; 16],
-    pub stack: [u16; 16],
+    v: [u8; 16],
+    stack: [u16; 16],
     // stack pointer
-    pub sp: u8,
-    pub delay_timer: u8,
-    pub sound_timer: u8
+    sp: u8,
+    delay_timer: u8,
+    sound_timer: u8
 }
 
 impl Cpu {
