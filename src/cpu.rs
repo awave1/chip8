@@ -55,10 +55,15 @@ impl Cpu {
 
     pub fn load_prog(&mut self, data: Vec<u8>) -> Result<bool, Error> {
         let mut byte_count = 0;
+
         for (i, byte) in data.iter().enumerate() {
-            self.memory[self.pc] = *byte;
-            self.pc += 1;
-            byte_count = i;
+            if self.memory[self.pc] == 0 {
+                self.memory[self.pc] = *byte;
+                self.pc += 1;
+                byte_count = i;
+            } else {
+                break;
+            }
         }
 
         // Make sure all data have been loaded successfully
