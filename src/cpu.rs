@@ -23,7 +23,7 @@ pub struct Cpu {
     // index register
     i: u16,
     // program counter
-    pc: u16,
+    pc: usize,
     memory: [u8; 4096],
     // data registers
     v: [u8; 16],
@@ -47,6 +47,7 @@ impl Cpu {
             sound_timer: 0,
         };
 
+        // Load fonts in first 512 bytes
         cpu.load_fonts();
 
         cpu
@@ -55,11 +56,13 @@ impl Cpu {
     pub fn load_prog(&mut self, data: Vec<u8>) -> Result<bool, Error> {
         let mut byte_count = 0;
         for (i, byte) in data.iter().enumerate() {
-            self.memory[i] = *byte;
+            self.memory[self.pc] = *byte;
+            self.pc += 1;
             byte_count = i;
         }
 
-        let loaded = (byte_count + 1) == data.len();
+        // Make sure all data have been loaded successfully
+        let loaded = (self.pc - (byte_count + 1)) == 0x200;
 
         if loaded {
             Ok(loaded)
