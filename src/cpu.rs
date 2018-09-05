@@ -62,6 +62,7 @@ impl Cpu {
                 self.pc += 1;
                 byte_count = i;
             } else {
+                self.pc = 0x200;
                 break;
             }
         }
@@ -76,7 +77,12 @@ impl Cpu {
         }
     }
 
-    pub fn start(self) {
+    // fetches 16bit word opcode
+    fn fetch_opcode(&mut self, index: usize) -> u16 {
+        return (self.memory[index] as u16) << 8 | self.memory[index + 1] as u16;
+    }
+
+    pub fn start(&mut self) {
         println!("started");
     }
 
