@@ -29,7 +29,7 @@ pub struct Cpu {
     v: [u8; 16],
     stack: [u16; 16],
     // stack pointer
-    sp: u8,
+    sp: usize,
     delay_timer: u8,
     sound_timer: u8
 }
@@ -56,9 +56,9 @@ impl Cpu {
     pub fn load_prog(&mut self, data: Vec<u8>) -> Result<bool, Error> {
         let mut byte_count = 0;
 
-        for (i, byte) in data.iter().enumerate() {
+        for (i, &byte) in data.iter().enumerate() {
             if self.memory[self.pc] == 0 {
-                self.memory[self.pc] = *byte;
+                self.memory[self.pc] = byte;
                 self.pc += 1;
                 byte_count = i;
             } else {
@@ -78,24 +78,60 @@ impl Cpu {
     }
 
     // fetches 16bit word opcode
-    fn fetch(&self) -> u16 {
-        return (self.memory[self.pc] as u16) << 8 | (self.memory[self.pc + 1] as u16);
+    fn fetch(&mut self) -> u16 {
+        let opcode = (self.memory[self.pc] as u16) << 8 | (self.memory[self.pc + 1] as u16);
+
+        opcode
     }
 
-    fn execute(&self, opcode: u16) {
-       // @TODO 
+    fn execute(&mut self, opcode: u16) {
+        let register_x = (opcode >> 8) & 0x000f;
+        let register_y = (opcode >> 4) & 0x000f;
+        let n = opcode & 0x000F; // the lowest 4 bits
+        let nn = opcode & 0x00FF; // the lowest 8 bits
+        let nnn = opcode & 0x0FFF; // the lowest 12 bits
+
+
+        match opcode & 0xf000 {
+            0x0000 => {
+                match nn {
+                    0x00e0 => debug!("0x00e0"),
+                    0x00ee => debug!("0x00ee"),
+                    _ => debug!("unknown opcode"),
+                }
+            },
+            0x1000 => {
+                debug!("0x1000");
+                self.pc = nnn as usize;
+            },
+            0x2000 => {
+                debug!("0x2000");
+                self.sp += 1;
+                self.stack[self.sp] = (self.pc + 2) as u16;
+                self.pc = nnn as usize;
+            },
+            0x3000 => debug!("0x3000"),
+            0x4000 => debug!("0x4000"),
+            0x5000 => debug!("0x5000"),
+            0x6000 => debug!("0x6000"),
+            0x7000 => debug!("0x7000"),
+            0x8000 => debug!("0x8000"),
+            0x9000 => debug!("0x9000"),
+            0xa000 => debug!("0xa000"),
+            0xb000 => debug!("0xb000"),
+            0xc000 => debug!("0xc000"),
+            0xd000 => debug!("0xd000"),
+            0xe000 => debug!("0xe000"),
+            0xd000 => debug!("0xd000"),
+            _ => debug!(),
+        }
     }
 
-    pub fn start(self) {
-        println!("started");
+    pub fn start(mut self) {
         loop {
             let opcode = self.fetch();
             self.execute(opcode);
-
-            println!("{:x}", opcode);
-            if opcode == 0 {
-                break;
-            }
+            //debug!("{:x}", opcode);
         };
     }
 

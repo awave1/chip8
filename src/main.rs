@@ -2,18 +2,14 @@ use std::io;
 use std::io::prelude::*;
 use std::fs::File;
 
+mod macros;
+
 mod cpu;
 use cpu::Cpu;
 
-macro_rules! debug {
-    ($($arg:tt)*) => {
-        if cfg!(debug_assertions) {
-            println!($($arg)*);
-        }
-    };
-}
 
 fn get_program_data(path: &str) -> Result<Vec<u8>, io::Error> {
+    debug!("> reading program data");
     let f = File::open(path);
     let mut f = match f {
         Ok(file) => file,
@@ -29,6 +25,7 @@ fn get_program_data(path: &str) -> Result<Vec<u8>, io::Error> {
 
 fn start_with_data(data: Vec<u8>) {
     println!("yo, chip-8");
+    debug!("> starting");
 
     let mut cpu = Cpu::new();
 
@@ -44,5 +41,6 @@ fn main() {
         Err(e) => panic!("Oops, error opening the file {:?}", e),
     }
 
+    debug!("> stop");
     println!("bye!");
 }
