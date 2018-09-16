@@ -1,3 +1,5 @@
+extern crate rand;
+
 use std::io::{Error, ErrorKind};
 
 const FONTSET: [u8; 80] = [
@@ -101,12 +103,10 @@ impl Cpu {
                 }
             },
             0x1000 => {
-                debug!("0x1000");
                 self.pc = nnn as usize;
             },
             0x2000 => {
                 // calls subroutine at nnn
-                debug!("0x2000");
                 self.sp += 1;
                 self.stack[self.sp] = (self.pc + 2) as u16;
                 self.pc = nnn as usize;
@@ -197,13 +197,38 @@ impl Cpu {
 
                 self.pc += 2;
             },
-            0x9000 => debug!("0x9000"),
-            0xa000 => debug!("0xa000"),
-            0xb000 => debug!("0xb000"),
-            0xc000 => debug!("0xc000"),
-            0xd000 => debug!("0xd000"),
-            0xe000 => debug!("0xe000"),
-            0xd000 => debug!("0xd000"),
+            0x9000 => {
+                // conditional vx != vy
+                if self.v[x] != self.v[y] {
+                    self.pc += 4;
+                } else {
+                    self.pc += 2;
+                }
+            },
+            0xa000 => {
+                self.i = nnn;
+                self.pc += 2;
+            },
+            0xb000 => {
+                self.pc = (self.v[0] + nnn as u8) as usize; 
+            },
+            0xc000 => {
+                let rand_num: u8 = rand::random();
+                self.v[x] = rand_num & nn as u8;
+                self.pc += 2;
+            },
+            0xd000 => {
+                // draw 
+                self.pc += 2;
+            },
+            0xe000 => {
+                // keyboard events
+                self.pc += 2;
+            },
+            0xf000 => {
+                // misc
+                self.pc += 2;
+            },
             _ => debug!(),
         }
     }
