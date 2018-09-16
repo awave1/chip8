@@ -142,8 +142,61 @@ impl Cpu {
             0x7000 => {
                 self.v[x] += nn as u8;
                 self.pc += 2;
-            }
-            0x8000 => debug!("0x8000"),
+            },
+            0x8000 => {
+                match n {
+                    0x0 => {
+                       self.v[x] = self.v[y];
+                    },
+                    0x1 => {
+                        self.v[x] |= self.v[y];
+                    },
+                    0x2 => {
+                        self.v[x] &= self.v[y];
+                    },
+                    0x3 => {
+                        self.v[x] ^= self.v[y];
+                    },
+                    0x4 => {
+						if self.v[x] + self.v[y] > 255 {
+                            self.v[0xf] = 1;
+						} else {
+                            self.v[0xf] = 0;
+                        }
+
+                        self.v[x] += self.v[y];
+                    },
+                    0x5 => {
+						if self.v[x] > self.v[y] {
+                            self.v[0xf] = 1;
+						} else {
+                            self.v[0xf] = 0;
+                        }
+
+                        self.v[x] -= self.v[y];
+                    },
+                    0x6 => {
+                        self.v[0xf] = self.v[x] & 0x1;
+                        self.v[x] >>= 1;
+                    },
+                    0x7 => {
+						if self.v[y] > self.v[x] {
+                            self.v[0xf] = 1;
+						} else {
+                            self.v[0xf] = 0;
+                        }
+
+                        self.v[x] = self.v[y] - self.v[x];
+                    },
+                    0xe => {
+                        self.v[0xf] = (self.v[x] >> 7) & 0x1;
+                        self.v[x] <<= 1;
+                    },
+                    _ => debug!("unknown opcode")
+                };
+
+                self.pc += 2;
+            },
             0x9000 => debug!("0x9000"),
             0xa000 => debug!("0xa000"),
             0xb000 => debug!("0xb000"),
