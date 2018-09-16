@@ -85,8 +85,8 @@ impl Cpu {
     }
 
     fn execute(&mut self, opcode: u16) {
-        let register_x = (opcode >> 8) & 0x000f;
-        let register_y = (opcode >> 4) & 0x000f;
+        let x = ((opcode >> 8) & 0x000f) as usize;
+        let y = ((opcode >> 4) & 0x000f) as usize;
         let n = opcode & 0x000F; // the lowest 4 bits
         let nn = opcode & 0x00FF; // the lowest 8 bits
         let nnn = opcode & 0x0FFF; // the lowest 12 bits
@@ -105,16 +105,44 @@ impl Cpu {
                 self.pc = nnn as usize;
             },
             0x2000 => {
+                // calls subroutine at nnn
                 debug!("0x2000");
                 self.sp += 1;
                 self.stack[self.sp] = (self.pc + 2) as u16;
                 self.pc = nnn as usize;
             },
-            0x3000 => debug!("0x3000"),
-            0x4000 => debug!("0x4000"),
-            0x5000 => debug!("0x5000"),
-            0x6000 => debug!("0x6000"),
-            0x7000 => debug!("0x7000"),
+            0x3000 => {
+                // conditional vx == nn
+                if self.v[x] == nn as u8 {
+                    self.pc += 4;
+                } else {
+                    self.pc += 2;
+                }
+            },
+            0x4000 => {
+                // conditional vx != nn
+                if self.v[x] != nn as u8 {
+                    self.pc += 4;
+                } else {
+                    self.pc += 2;
+                }
+            },
+            0x5000 => {
+                // conditional vx == vy
+                if self.v[x] == self.v[y] {
+                    self.pc += 4;
+                } else {
+                    self.pc += 2;
+                }
+            },
+            0x6000 => {
+                self.v[x] = nn as u8;
+                self.pc += 2;
+            },
+            0x7000 => {
+                self.v[x] += nn as u8;
+                self.pc += 2;
+            }
             0x8000 => debug!("0x8000"),
             0x9000 => debug!("0x9000"),
             0xa000 => debug!("0xa000"),
